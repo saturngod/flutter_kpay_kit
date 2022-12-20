@@ -37,19 +37,11 @@ public class FlutterKpayKitPlugin implements FlutterPlugin, MethodCallHandler , 
   private static final String CHANNEL = "flutter_kpay_kit";
   private static EventChannel.EventSink sink;
   private static final String TAG = "kpay";
-  private String mOrderInfo;
-  private String mMerchantCode = "";
-  private String callbackInfo = "";
-  private String notifyUrl = "";
-  private String mAppId = "";
-  private String mSignKey = "";
-  private String mSign = "";
-  private String mSignType = "SHA256";
-  private String mTitle = "";
-  private String mAmount = "0";
-  private String mPrepayId = "";
-  private String mMerchantOrderId = "";
-  private Boolean isProduction = false;
+  private String orderString = "";
+  private String orderSign = "";
+  private String signType = "";
+  
+
   private Activity activity;
 
 
@@ -76,47 +68,17 @@ public class FlutterKpayKitPlugin implements FlutterPlugin, MethodCallHandler , 
 
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
-    if (call.method.equals("createPay")) {
-      HashMap<String, Object> map = call.arguments();
-      try {
-        JSONObject params = new JSONObject(map);
-        Log.v("createPay", params.toString());
-        if (params.has("merch_code") && params.has("appid") && params.has("sign_key")) {
-          mMerchantCode = params.getString("merch_code");
-          mAppId = params.getString("appid");
-          mSignKey = params.getString("sign_key");
-          mAmount = params.getString("amount");
-          mTitle = params.getString("title");
-          mMerchantOrderId = params.getString("order_id");
-          isProduction = params.getBoolean("is_production");
-          callbackInfo = params.getString("callback_info");
-          notifyUrl =  params.getString("notify_url");
-          String createOrderString = createOrder();
-
-          result.success(createOrderString);
-
-        }
-      } catch (JSONException e) {
-        e.printStackTrace();
-        return;
-      }
-    } else if (call.method.equals("startPay")) {
+   if (call.method.equals("startPay")) {
       Log.d(TAG, "call");
       HashMap<String, Object> map = call.arguments();
       try {
         JSONObject params = new JSONObject(map);
         Log.v("startPay", params.toString());
-        if (params.has("prepay_id") && params.has("merch_code") && params.has("appid")
-                && params.has("sign_key")) {
-          String prepayId = null;
-          String merch_code = null;
-          String appid = null;
-          String sign_key = null;
-          prepayId = params.getString("prepay_id");
-          merch_code = params.getString("merch_code");
-          appid = params.getString("appid");
-          sign_key = params.getString("sign_key");
-          mPrepayId = prepayId;
+         if (params.has("orderString") && params.has("orderSign") && params.has("signType")) {
+          orderString = params.getString("orderString");
+          orderSign = params.getString("orderSign");
+          signType = params.getString("signType");
+         
           startPay();
           result.success("payStatus " + 0);
         } else {
@@ -159,7 +121,7 @@ public class FlutterKpayKitPlugin implements FlutterPlugin, MethodCallHandler , 
     Log.d(TAG, mSign);
     Log.d(TAG, mSignType);
     Log.d(TAG,"</StartPay>");
-    KBZPay.startPay(this.activity, mOrderInfo, mSign, mSignType);
+    KBZPay.startPay(this.activity, orderString, orderSign, signType);
   }
 
 

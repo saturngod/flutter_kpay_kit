@@ -21,66 +21,32 @@ class FlutterKpayKit {
     return _streamPayStatus!;
   }
 
-  static Future<String> startPay(
-      {required String merchCode,
-      required String appId,
-      required String signKey,
-      String? urlScheme, //Only Ios
-      required String orderId,
-      required double amount,
-      required String title,
-      required String notifyURL,
-      required bool isProduction}) async {
-    final String orderString = await _channel.invokeMethod('createPay', {
-      'merch_code': merchCode,
-      'appid': appId,
-      'sign_key': signKey,
-      'url_scheme': urlScheme,
-      'order_id': orderId,
-      'amount': amount,
-      'title': title,
-      'is_production': isProduction,
-      "notify_url": notifyURL,
-      'callback_info': Platform.isAndroid ? "android" : "iphone"
-    });
-    Dio dio = Dio();
-    dio.interceptors.add(PrettyDioLogger(
-        requestHeader: true,
-        requestBody: true,
-        responseBody: true,
-        responseHeader: true));
-    var options = Options(
-      headers: {"Content-Type": "application/json"},
-    );
-    String orderCreateApi = "";
-    if (isProduction) {
-      orderCreateApi = "https://api.kbzpay.com/payment/gateway/precreate";
-    } else {
-      orderCreateApi = "http://api.kbzpay.com/payment/gateway/uat/precreate";
-    }
-    print(orderString);
-    Response response =
-        await dio.post(orderCreateApi, options: options, data: orderString);
-    print(response);
-
-    String result = response.data["Response"]["result"];
-
-    if (result == "FAIL") {
-      return json.encode(response.data);
-    }
-
-
-    prepay_id = response.data["Response"]["prepay_id"];
-
-    print(prepay_id);
-
-    print(
-        "Start Pay Request param : { prepay_id : $prepay_id, merch_code: $merchCode, appid: $appId, sign_key: $signKey, 'url_scheme': $urlScheme}");
+static Future<String> startPay({
+    required String orderString,
+    required String orderSign,
+    required String signType,
+    String? urlScheme,
+  }) async {
     final String data = await _channel.invokeMethod('startPay', {
-      'prepay_id': prepay_id,
-      'merch_code': merchCode,
-      'appid': appId,
-      'sign_key': signKey,
+      'orderString': orderString,
+      'orderSign': orderSign,
+      'signType': signType,
+      'url_scheme': urlScheme,
+    });
+
+    return data;
+  }
+  static Future<String> startPay(
+      {required String orderString,
+      required String orderSign,
+      required String signType,
+      String? urlScheme, //Only Ios
+      }) async {
+    
+    final String data = await _channel.invokeMethod('startPay', {
+      'orderString': orderString,
+      'orderSign': orderSign,
+      'signType': signType,
       'url_scheme': urlScheme,
     });
 
