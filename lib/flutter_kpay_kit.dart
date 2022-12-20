@@ -36,20 +36,5 @@ static Future<String> startPay({
 
     return data;
   }
-  static Future<String> startPay(
-      {required String orderString,
-      required String orderSign,
-      required String signType,
-      String? urlScheme, //Only Ios
-      }) async {
-    
-    final String data = await _channel.invokeMethod('startPay', {
-      'orderString': orderString,
-      'orderSign': orderSign,
-      'signType': signType,
-      'url_scheme': urlScheme,
-    });
-
-    return data;
-  }
+  
 }
